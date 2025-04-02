@@ -16,11 +16,17 @@
       <div class="container mx-auto flex justify-between items-center">
         <a href="/" class="text-xl font-bold">JWT Frontend</a>
         <div id="navLinks">
-          <a href="/src/dashboard.html" class="hover:text-blue-200 mr-4"
+          <a
+            href="/t21-186-p07/src/dashboard.html"
+            class="hover:text-blue-200 mr-4"
             >Dashboard</a
           >
-          <a href="/src/login.html" class="hover:text-blue-200 mr-4">Login</a>
-          <a href="/src/register.html" class="hover:text-blue-200">Register</a>
+          <a href="/t21-186-p07/src/login.html" class="hover:text-blue-200 mr-4"
+            >Login</a
+          >
+          <a href="/t21-186-p07/src/register.html" class="hover:text-blue-200"
+            >Register</a
+          >
         </div>
       </div>
     </nav>
@@ -62,7 +68,9 @@
 
         <p class="mt-4 text-center">
           Sudah punya akun?
-          <a href="/src/login.html" class="text-blue-600 hover:underline"
+          <a
+            href="/t21-186-p07/src/login.html"
+            class="text-blue-600 hover:underline"
             >Login disini</a
           >
         </p>
@@ -70,7 +78,7 @@
     </div>
   </body>
   <script>
-    const apiUrl = "http://localhost:3000";
+    const apiUrl = "https://kuliah2025.my.id//t21-186-p07";
     let jwtToken = localStorage.getItem("JWT-TOKEN") || "";
 
     function showMessage(msg, type = "info") {
@@ -97,10 +105,10 @@
     function checkAuth() {
       if (
         !jwtToken &&
-        window.location.pathname !== "/src/login.html" &&
-        window.location.pathname !== "/src/register.html"
+        window.location.pathname !== "/t21-186-p07/src/login.html" &&
+        window.location.pathname !== "/t21-186-p07/src/register.html"
       ) {
-        window.location.href = "/src/login.html";
+        window.location.href = "/t21-186-p07/src/login.html";
       }
     }
 
@@ -161,7 +169,7 @@
     function logout() {
       localStorage.removeItem("JWT-TOKEN");
       jwtToken = "";
-      window.location.href = "/src/login.html";
+      window.location.href = "/t21-186-p07/src/login.html";
     }
     document
       .getElementById("loginForm")
@@ -181,7 +189,7 @@
           if (result.jwt) {
             localStorage.setItem("JWT-TOKEN", result.jwt);
             jwtToken = result.jwt;
-            window.location.href = "/src/dashboard.html";
+            window.location.href = "/t21-186-p07/src/dashboard.html";
           } else {
             showMessage(result.message || "Login gagal", "error");
           }
@@ -208,7 +216,7 @@
           if (response.ok) {
             showMessage("Registrasi berhasil! Silakan login", "success");
             setTimeout(() => {
-              window.location.href = "/src/login.html";
+              window.location.href = "/t21-186-p07/src/login.html";
             }, 2000);
           } else {
             showMessage(result.message || "Registrasi gagal", "error");

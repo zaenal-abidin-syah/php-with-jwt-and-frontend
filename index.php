@@ -172,7 +172,6 @@ elseif(isset($segments[0]) && $segments[0] === 'data'){
         }
         elseif($mode == 'filter'){
             // b. Get Data by Filter
-            // Filter berdasarkan parameter misalnya 'field' dan 'value'
             $jurusan = urldecode($_GET['jurusan']) ?? '';
             // echo $jurusan . $mode;
             // return;

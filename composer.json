@@ -1,0 +1,17 @@
+{
+    "name": "zaens/php-jwt",
+    "autoload": {
+        "psr-4": {
+            "Zaens\\PhpJwt\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "zaenal-abidin-syah",
+            "email": "aszaenal618@gmail.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.11"
+    }
+}

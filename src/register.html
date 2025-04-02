@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JWT API Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .message {
+        transition: opacity 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <nav class="bg-blue-600 text-white p-4">
+      <div class="container mx-auto flex justify-between items-center">
+        <a href="/" class="text-xl font-bold">JWT Frontend</a>
+        <div id="navLinks">
+          <a href="/src/dashboard.html" class="hover:text-blue-200 mr-4"
+            >Dashboard</a
+          >
+          <a href="/src/login.html" class="hover:text-blue-200 mr-4">Login</a>
+          <a href="/src/register.html" class="hover:text-blue-200">Register</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container mx-auto p-4">
+      <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">
+          Register Akun Baru
+        </h2>
+        <div id="messages" class="message mb-4"></div>
+
+        <form id="registerForm" class="space-y-4">
+          <div>
+            <label class="block text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              name="password"
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
+          >
+            Daftar Sekarang
+          </button>
+        </form>
+
+        <p class="mt-4 text-center">
+          Sudah punya akun?
+          <a href="/src/login.html" class="text-blue-600 hover:underline"
+            >Login disini</a
+          >
+        </p>
+      </div>
+    </div>
+  </body>
+  <script>
+    const apiUrl = "http://localhost:3000";
+    let jwtToken = localStorage.getItem("JWT-TOKEN") || "";
+
+    function showMessage(msg, type = "info") {
+      const messages = document.getElementById("messages");
+      if (!messages) return;
+
+      const colors = {
+        success: "bg-green-100 border-green-400 text-green-700",
+        error: "bg-red-100 border-red-400 text-red-700",
+        info: "bg-blue-100 border-blue-400 text-blue-700",
+      };
+
+      messages.innerHTML = `
+    <div class="${colors[type]} border px-4 py-3 rounded relative mb-4" role="alert">
+      <span class="block sm:inline">${msg}</span>
+    </div>
+  `;
+
+      setTimeout(() => {
+        messages.innerHTML = "";
+      }, 5000);
+    }
+
+    function checkAuth() {
+      if (
+        !jwtToken &&
+        window.location.pathname !== "/src/login.html" &&
+        window.location.pathname !== "/src/register.html"
+      ) {
+        window.location.href = "/src/login.html";
+      }
+    }
+
+    function parseJwt(token) {
+      try {
+        return JSON.parse(atob(token.split(".")[1]));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Initialize auth check on page load
+    document.addEventListener("DOMContentLoaded", checkAuth);
+    async function fetchData(jurusan = "") {
+      if (!jwtToken) {
+        showMessage("Silakan login terlebih dahulu", "error");
+        return;
+      }
+
+      try {
+        let url = apiUrl + "/data";
+        if (jurusan) {
+          url += `?mode=filter&jurusan=${encodeURIComponent(jurusan)}`;
+        }
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: "Bearer " + jwtToken,
+          },
+        });
+
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+
+        const data = await response.json();
+        renderTable(data.data);
+      } catch (error) {
+        showMessage("Error: " + error.message, "error");
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#mahasiswaTable");
+      tbody.innerHTML = data
+        .map(
+          (mahasiswa) => `
+    <tr>
+      <td class="px-6 py-4 whitespace-nowrap">${mahasiswa.nim}</td>
+      <td class="px-6 py-4 whitespace-nowrap">${mahasiswa.name}</td>
+      <td class="px-6 py-4 whitespace-nowrap">${mahasiswa.jurusan}</td>
+    </tr>
+  `
+        )
+        .join("");
+    }
+    function logout() {
+      localStorage.removeItem("JWT-TOKEN");
+      jwtToken = "";
+      window.location.href = "/src/login.html";
+    }
+    document
+      .getElementById("loginForm")
+      ?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+          const response = await fetch(apiUrl + "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (result.jwt) {
+            localStorage.setItem("JWT-TOKEN", result.jwt);
+            jwtToken = result.jwt;
+            window.location.href = "/src/dashboard.html";
+          } else {
+            showMessage(result.message || "Login gagal", "error");
+          }
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      });
+    // Register Form Handler
+    document
+      .getElementById("registerForm")
+      ?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+          const response = await fetch(apiUrl + "/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            showMessage("Registrasi berhasil! Silakan login", "success");
+            setTimeout(() => {
+              window.location.href = "/src/login.html";
+            }, 2000);
+          } else {
+            showMessage(result.message || "Registrasi gagal", "error");
+          }
+        } catch (error) {
+          showMessage("Error: " + error.message, "error");
+        }
+      });
+  </script>
+</html>
